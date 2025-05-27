@@ -1,5 +1,7 @@
 #include "gameoflife.h"
 
+
+//functie push SITE-PA (task2)
 void push(Node** top, int numar,Celula *lista) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     newNode->numar = numar;
@@ -7,7 +9,29 @@ void push(Node** top, int numar,Celula *lista) {
     newNode->next = *top;
     *top = newNode;
 }
+//eliberez din memorie lista
 
+//Problema cu memoria (rezolvat)
+void free_lista_celule(Celula *lista)
+{
+    while (lista) {
+        Celula *temp = lista;
+        lista = lista->next;
+        free(temp);
+    }
+}
+void free_stiva(Node *top) 
+{
+    while (top) 
+    {
+        Node *temp = top;
+        top = top->next;
+        free_lista_celule(temp->celule);
+        free(temp);                    
+    }
+}
+////
+//Compar doua matrici si caut diferentele (intre doua generatii)
 Celula *compar(char **a,char **b,int n,int m)
 {
     Celula *lista = NULL;
@@ -28,7 +52,7 @@ Celula *compar(char **a,char **b,int n,int m)
     return lista;
 }
 
-
+//Citire task1
 void citire_date(FILE *fisier,int *numar_task,int *n,int *m,int *k,char ***matrice) 
 {
     
@@ -51,6 +75,7 @@ void citire_date(FILE *fisier,int *numar_task,int *n,int *m,int *k,char ***matri
     }
 }
 
+//copiez matrice
 char **copie_matrice(int n,int m,char **matrice)
 {
     char **copie = malloc(n * sizeof(char *));
@@ -62,12 +87,17 @@ char **copie_matrice(int n,int m,char **matrice)
     return copie;
 }
 
+
+//free la matrice (-memorie)
 void free_matrice(char **matrice,int n)
 {
     for (int i=0;i<n;i++)
         free(matrice[i]);
     free(matrice);
 }
+
+
+//arborele de generatii
 char **generatie1(int n, int m, char **matrice) 
 {
 
@@ -98,6 +128,9 @@ char **generatie1(int n, int m, char **matrice)
     }
     return noua;
 }
+
+//task 1 generatii regului (GOF)
+
 char **generatie(int n,int m,char **matrice)
 {
     char **noua_matrice=(char **)malloc(n * sizeof(char *));
@@ -139,29 +172,71 @@ char **generatie(int n,int m,char **matrice)
     return noua_matrice;
 }
 
+//copiez o lista de celule care au aceleasi date ca originala (ca sa nu modifice lista originala)
+Celula* lista_cels(Celula *lista) 
+{
+    if (!lista) return NULL;
+    Celula *copie = NULL,*last = NULL;
+    while (lista) 
+    {
+        Celula *nou = (Celula*)malloc(sizeof(Celula));
+        nou->l=lista->l;
+        nou->c=lista->c;
+        nou->next = NULL;
+        if (!copie) {
+            copie = nou;
+            last = nou;
+        } else {
+            last->next = nou;
+            last = nou;
+        }
+        lista=lista->next;
+    }
+    return copie;
+}
+
+//o copie inversata a stivei parcurgand din varf spre inceput 
+
+Node* inversez_stiva(Node *top) 
+{
+    Node *invers = NULL;
+    while (top) { 
+        Node *nou = (Node*)malloc(sizeof(Node)); //un nod nou
+        nou->numar = top->numar; 
+        nou->celule = lista_cels(top->celule); //copiez lista de celule 
+        nou->next = invers;
+        invers = nou;
+        top = top->next;
+    }
+    return invers;
+}
+
+//bonus aplic fix invers tranformarile din stiva 
 void bonus(Node *top,int n,int m,char **matrice)
 {
     int i,j;
     while(top)
     {
-        Celula *cel=top->celule;
+        Celula *cel=top->celule; // iau prima celula
         while(cel)
         {
             i=cel->l;
-            j=cel->c;
-            if (i>=0 && i<n && j>=0 && j<m)
+            j=cel->c;//coordonate 
+            if (i>=0 && i<n && j>=0 && j<m) // daca e in matrice    
             {
                 if (matrice[i][j] == VII)
                     matrice[i][j]=MOARTE;
                 else
                     matrice[i][j]=VII;
+                //inversez aici
             }   
-            cel=cel->next;
+            cel=cel->next; //trec la celula 
         }
         top=top->next;
     }
-}
 
+}
+//scriu in fisier (bonusu)
 void scriu_bonus(FILE *fisier2,int n,int m,char **matrice)
 {   
     if(fisier2 == NULL)
@@ -176,7 +251,7 @@ void scriu_bonus(FILE *fisier2,int n,int m,char **matrice)
         fputc('\n',fisier2);
     }
 }
-
+//construiesc arbore binar din generatii cu doua reguli 
 Arbore *construire(int n, int m, int generatie_curenta, int k, char **matrice) 
 {
     if (generatie_curenta > k) return NULL;
@@ -195,6 +270,7 @@ Arbore *construire(int n, int m, int generatie_curenta, int k, char **matrice)
     return nod;
 }
 
+//scriu matricex
 void scriere_mat(FILE *fisier,char **matrice,int n,int m) 
 {
     if(fisier == NULL)
@@ -209,7 +285,7 @@ void scriere_mat(FILE *fisier,char **matrice,int n,int m)
         fputc('\n',fisier);
     }
 }
-
+//preordinea
 void preorder(Arbore* root,FILE *fisier,int n,int m) 
 {
     if (root) {
@@ -219,7 +295,7 @@ void preorder(Arbore* root,FILE *fisier,int n,int m)
         preorder(root->right, fisier, n, m);
     }
 }
-//
+//scriu stiva
 void print_stiva(FILE *fisier1,Node *top)
 {
     if(fisier1 == NULL)
@@ -227,7 +303,8 @@ void print_stiva(FILE *fisier1,Node *top)
         printf("Fisierul nu poate fi deschis");
         exit(1);
     }
-    Node *invers=NULL;
+    Node *invers=NULL,*start=NULL;
+    //inversez stiva de la coada la cap 
     while(top)
     {
         Node *next = top->next;
@@ -235,18 +312,22 @@ void print_stiva(FILE *fisier1,Node *top)
         invers=top;
         top=next;
     } //
+    start = invers;
+
     while(invers)
     {
         fprintf(fisier1,"%d",invers->numar);
-        Celula *nr = invers->celule;
+        //parrcurg lista 
+        Celula *nr = invers->celule; //nr este primul element din lista ce s a schimbat 
         while(nr)
         {
             fprintf(fisier1," %d %d",nr->l,nr->c);
-            nr=nr->next;
+            nr=nr->next; // la urmatorea celula
         }
         fprintf(fisier1,"\n");
-        invers=invers->next;
+        invers=invers->next; //trec la urmatoru
     }
+    free_stiva(start);
 }
 void elibereaza_arbore(Arbore *root, int n) 
 {
@@ -256,7 +337,7 @@ void elibereaza_arbore(Arbore *root, int n)
     free_matrice(root->matrice, n);
     free(root);
 }
-
+//celulele vii
 int cells_alive(char **mat, int n, int m, Nod **rezultat) 
 {
     int count=0;
@@ -269,6 +350,7 @@ int cells_alive(char **mat, int n, int m, Nod **rezultat)
         }
     }
     *rezultat = malloc(count * sizeof(Nod));
+    //salvez coordonatele celulelor vii
     int poz = 0;
     for (int i=0;i<n;i++)
     {
@@ -286,18 +368,21 @@ int cells_alive(char **mat, int n, int m, Nod **rezultat)
     return count;
 }
 
+//verific daca doua celule sunt vecine si sa nu fie pe aceeasi celula
 int sunt_vecini(Nod a, Nod b) 
 {
     return abs(a.l - b.l) <= 1 && abs(a.c - b.c) <= 1 && !(a.l == b.l && a.c == b.c);
 }
 
+
+//caut recursiv toate drumurile in graf de la un nod si o singura data si daca gaseste un drum mai lung decat cel anterior se actualizaeaza 
 void dfs(Nod *noduri, int **matrice_vecini, int nr, int *viz, int *traseu_cur, int depth, int *lgmax, int *traseu_bun) 
 {
     if (depth > *lgmax) 
     {
         *lgmax = depth;
         for (int i=0;i<=depth;i++) {
-            traseu_bun[i] = traseu_cur[i];
+            traseu_bun[i] = traseu_cur[i]; // aici memorez ca cel mai bun traseu
         }
     }
     for (int i=0;i<nr;i++) 
@@ -311,12 +396,12 @@ void dfs(Nod *noduri, int **matrice_vecini, int nr, int *viz, int *traseu_cur, i
         }
     }
 }
-
+///caut cel mai lugn lh 
 LH lantH(char **mat, int n, int m) {
     Nod *noduri;
-    int nr = cells_alive(mat, n, m, &noduri);
+    int nr = cells_alive(mat, n, m, &noduri); // nr este toate celulele vii
 
-    int **matrice_vecini = malloc(nr * sizeof(int *));
+    int **matrice_vecini = malloc(nr * sizeof(int *)); // fac o matrice in functie de functia sunt_vecine 
     for (int i=0;i<nr;i++) 
     {
         matrice_vecini[i] = calloc(nr, sizeof(int));
@@ -325,12 +410,13 @@ LH lantH(char **mat, int n, int m) {
             matrice_vecini[i][j] = sunt_vecini(noduri[i], noduri[j]);
         }
     }
+    //cele de la dfs
+    int *viz = calloc(nr, sizeof(int)); //daca a fost vizitat
+    int *traseu_cur = malloc((nr+1) * sizeof(int)); //traseu curent
+    int *traseu_bun = malloc((nr+1) * sizeof(int)); //cel mai lung traseu 
+    int lgmax = -1; // tin mint elungimea maxima a unui traseu
 
-    int *viz = calloc(nr, sizeof(int));
-    int *traseu_cur = malloc((nr+1) * sizeof(int));
-    int *traseu_bun = malloc((nr+1) * sizeof(int));
-    int lgmax = -1;
-
+    //fac dfs  caut recursiv cel mai lung drum care viziteaza o data fiecare nod si daca se gaseste un lant mai lung decat cel anterior se salveaza
     for (int i=0;i<nr;i++) 
     {
         viz[i] = 1;
@@ -352,7 +438,7 @@ LH lantH(char **mat, int n, int m) {
         for (int i=0;i<=lgmax;i++)
             rezultat.lant[i] = noduri[traseu_bun[i]];
     }
-
+    //dau free la fieecare
     free(noduri); 
     free(viz); 
     free(traseu_cur); 
@@ -363,7 +449,7 @@ LH lantH(char **mat, int n, int m) {
 
     return rezultat;
 }
-
+//scriu  lung lantului si fiecare coordonata 
 void scrie_lant(FILE *f, LH lant) 
 {
     fprintf(f,"%d\n",lant.lungime);
@@ -375,6 +461,7 @@ void scrie_lant(FILE *f, LH lant)
     free(lant.lant);
 }
 
+//task4 caut recursiv in stanga si in dreapta , caut cel mai lung lant H si dupa scriu lantul
 void task4(Arbore *root, int n, int m, FILE *fout) {
     if (root==NULL) return;
 
@@ -385,6 +472,7 @@ void task4(Arbore *root, int n, int m, FILE *fout) {
     task4(root->right, n, m, fout);
 }
 
+//citesc matricea
 char **citeste_matrice(FILE *f, int n, int m) 
 {
     char **mat = malloc(n * sizeof(char *));

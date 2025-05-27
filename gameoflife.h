@@ -43,8 +43,9 @@ void print_stiva(FILE *fisier,Node *stiva);
 void free_matrice(char **matrice,int n);
 void bonus(Node *top,int n,int m,char **matrice);
 void scriu_bonus(FILE *fisier2,int n,int m,char **matrice);
-
-
+Node* inversez_stiva(Node *top);
+Celula* lista_cels(Celula *lista);
+void free_stiva(Node *top);
 void elibereaza_arbore(Arbore *root, int n);
 LH lantH(char **mat, int n, int m);
 void scrie_lant(FILE *f,LH lant);

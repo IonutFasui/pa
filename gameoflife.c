@@ -50,6 +50,9 @@ int main(int argc, char *argv[]) {
 
         snprintf(out, sizeof(out), "OutputData/%s.out", nume_baza);
 
+
+
+        //TASK 1
         if (numar_task == 1) 
         {
             FILE *fisier1 = fopen(out, "w");
@@ -68,25 +71,33 @@ int main(int argc, char *argv[]) {
             free_matrice(current, n);
             fclose(fisier1);
         }
-
+        //TASK 2
         if (numar_task == 2) 
         {
-            for (int gen = 1; gen <= k; gen++) 
-            {
-                copie = copie_matrice(n, m, matrice);
-                urm = generatie(n, m, matrice);
-                Celula *compar1 = compar(matrice, urm, n, m);
-                push(&stiva, gen, compar1);
-                free_matrice(matrice, n);
-                matrice = urm;
-                free_matrice(copie, n);
-            }
+                for (int gen = 1; gen <= k; gen++) 
+                {
+                    copie = copie_matrice(n, m, matrice);
+                    urm = generatie(n, m, matrice);
+                    Celula *compar1 = compar(matrice, urm, n, m);
+                    push(&stiva, gen, compar1);
+                    free_matrice(matrice, n);
+                    matrice = urm;
+                    free_matrice(copie, n);
+                }
+                Node* stivainv = inversez_stiva(stiva);
+                FILE *fisier11 = fopen(out, "w");
+                print_stiva(fisier11, stiva);
+                bonus(stivainv, n, m, matrice); 
 
-            FILE *bonus_text = fopen(out, "w");
-            print_stiva(bonus_text, stiva);
-            fclose(bonus_text);
+                FILE *bonus_text = fopen("bonus.txt", "wt");
+                scriu_bonus(bonus_text, n, m, matrice);
+                fclose(bonus_text);
+                fclose(fisier11);
+
+                free_stiva(stivainv);
+
         }
-
+        //TASK 3
         if (numar_task == 3) 
         {
             Arbore *radacina = construire(n, m, 0, k, matrice_initiala);
@@ -95,7 +106,7 @@ int main(int argc, char *argv[]) {
             fclose(fisier3);
             elibereaza_arbore(radacina, n);
         }
-
+        //TASK 4
         if (numar_task == 4) 
         {
             Arbore *root = construire(n, m, 0, k, matrice_initiala);
