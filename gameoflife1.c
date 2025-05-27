@@ -234,7 +234,7 @@ void print_stiva(FILE *fisier1,Node *top)
         top->next=invers;
         invers=top;
         top=next;
-    } 
+    } //
     while(invers)
     {
         fprintf(fisier1,"%d",invers->numar);
