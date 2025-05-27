@@ -219,7 +219,7 @@ void preorder(Arbore* root,FILE *fisier,int n,int m)
         preorder(root->right, fisier, n, m);
     }
 }
-
+//
 void print_stiva(FILE *fisier1,Node *top)
 {
     if(fisier1 == NULL)
